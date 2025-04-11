@@ -85,3 +85,32 @@ if ('serviceWorker' in navigator) {
       console.log('Rejestracja Service Workera nie powiodła się:', error);
     });
 }
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Zatrzymaj domyślne wywołanie prompta
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // Pokaż przycisk "Dodaj do ekranu głównego"
+  const addToHomeButton = document.getElementById('add-to-home');
+  if (addToHomeButton) {
+    addToHomeButton.style.display = 'block';
+
+    addToHomeButton.addEventListener('click', () => {
+      // Ukryj przycisk po kliknięciu
+      addToHomeButton.style.display = 'none';
+      deferredPrompt.prompt();
+
+      // Obsługa wyboru użytkownika
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('Użytkownik dodał aplikację do ekranu głównego.');
+        } else {
+          console.log('Użytkownik anulował dodanie aplikacji.');
+        }
+        deferredPrompt = null;
+      });
+    });
+  }
+});
